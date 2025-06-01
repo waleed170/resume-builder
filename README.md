@@ -3,8 +3,6 @@
 
 A modern, responsive web application for creating and customizing professional resumes with real-time preview.
 
-![Resume Builder Screenshot](https://via.placeholder.com/800x600.png?text=Resume+Builder+Screenshot)
-
 ## Features
 
 - **Real-time Preview**: See changes instantly as you fill out the form
