@@ -5,11 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Professional Resume Builder</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Lora:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="theme-toggle-container">
     <button id="themeToggle" aria-label="Toggle dark mode">🌓</button>
+    <div class="template-controls">
+      <select id="templateSelect">
+        <option value="classic">Classic</option>
+        <option value="modern">Modern</option>
+        <option value="minimalist">Minimalist</option>
+      </select>
+      <input type="color" id="colorPicker" value="#007BFF">
+      <select id="fontSelect">
+        <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Default</option>
+        <option value="'Roboto', sans-serif">Roboto</option>
+        <option value="'Lora', serif">Lora</option>
+        <option value="'Montserrat', sans-serif">Montserrat</option>
+      </select>
+    </div>
   </div>
+
   <div class="container">
     <div class="form-section">
       <h2>Build Your Resume</h2>
@@ -45,41 +61,31 @@
 
         <label data-tooltip="Add your work experience (most recent first)">
           Experience:
-          <div id="experienceFields">
-            <!-- Dynamic fields will be added here -->
-          </div>
+          <div id="experienceFields"></div>
           <button type="button" onclick="addExperience()" class="add-btn">+ Add Experience</button>
         </label>
 
         <label data-tooltip="Add your educational background">
           Education:
-          <div id="educationFields">
-            <!-- Dynamic fields will be added here -->
-          </div>
+          <div id="educationFields"></div>
           <button type="button" onclick="addEducation()" class="add-btn">+ Add Education</button>
         </label>
 
         <label data-tooltip="Add your significant projects with technologies used">
           Projects:
-          <div id="projectFields">
-            <!-- Dynamic fields will be added here -->
-          </div>
+          <div id="projectFields"></div>
           <button type="button" onclick="addProject()" class="add-btn">+ Add Project</button>
         </label>
 
         <label data-tooltip="Add your professional certifications">
           Certifications:
-          <div id="certificationFields">
-            <!-- Dynamic fields will be added here -->
-          </div>
+          <div id="certificationFields"></div>
           <button type="button" onclick="addCertification()" class="add-btn">+ Add Certification</button>
         </label>
 
         <label data-tooltip="Add languages you speak with proficiency level">
           Languages:
-          <div id="languageFields">
-            <!-- Dynamic fields will be added here -->
-          </div>
+          <div id="languageFields"></div>
           <button type="button" onclick="addLanguage()" class="add-btn">+ Add Language</button>
         </label>
 
