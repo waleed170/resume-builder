@@ -16,33 +16,85 @@ function toggleTheme() {
   }
 }
 
-// Initialize theme
 const savedTheme = localStorage.getItem('theme') || 
                   (prefersDarkScheme.matches ? 'dark' : 'light');
 setTheme(savedTheme);
 
 themeToggle.addEventListener('click', toggleTheme);
 
+// Template and Theme Customization
+const templateSelect = document.getElementById('templateSelect');
+const colorPicker = document.getElementById('colorPicker');
+const fontSelect = document.getElementById('fontSelect');
+
+function initTemplate() {
+  const savedTemplate = localStorage.getItem('resumeTemplate') || 'classic';
+  const savedColor = localStorage.getItem('accentColor') || '#007BFF';
+  const savedFont = localStorage.getItem('fontFamily') || "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+  
+  templateSelect.value = savedTemplate;
+  colorPicker.value = savedColor;
+  fontSelect.value = savedFont;
+  
+  applyTemplate(savedTemplate);
+  applyAccentColor(savedColor);
+  applyFontFamily(savedFont);
+}
+
+function applyTemplate(template) {
+  document.documentElement.setAttribute('data-template', template);
+  localStorage.setItem('resumeTemplate', template);
+}
+
+function applyAccentColor(color) {
+  document.documentElement.style.setProperty('--user-accent-color', color);
+  localStorage.setItem('accentColor', color);
+}
+
+function applyFontFamily(font) {
+  document.documentElement.style.setProperty('--user-font', font);
+  localStorage.setItem('fontFamily', font);
+}
+
+templateSelect.addEventListener('change', (e) => {
+  applyTemplate(e.target.value);
+});
+
+colorPicker.addEventListener('input', (e) => {
+  applyAccentColor(e.target.value);
+});
+
+fontSelect.addEventListener('change', (e) => {
+  applyFontFamily(e.target.value);
+});
+
 // DOM Elements and Constants
 const formFields = [
   "nameInput",
   "emailInput",
   "phoneInput",
+  "linkedinInput",
+  "githubInput",
+  "websiteInput",
   "summaryInput",
   "skillsInput"
 ];
+
+const socialFields = ["linkedinInput", "githubInput", "websiteInput"];
 
 const formElements = {
   nameInput: 'namePreview',
   emailInput: 'emailPreview',
   phoneInput: 'phonePreview',
+  linkedinInput: 'socialLinksPreview',
+  githubInput: 'socialLinksPreview',
+  websiteInput: 'socialLinksPreview',
   summaryInput: 'summaryPreview',
   skillsInput: 'skillsPreview'
 };
 
-// Update progress tracking to include new sections
 function updateProgress() {
-  const totalFields = 5 + // Basic fields
+  const totalFields = 8 + 
     (document.querySelectorAll('#experienceFields textarea').length > 0 ? 1 : 0) +
     (document.querySelectorAll('#educationFields textarea').length > 0 ? 1 : 0) +
     (document.querySelectorAll('#projectFields textarea').length > 0 ? 1 : 0) +
@@ -51,118 +103,108 @@ function updateProgress() {
   
   let completedFields = 0;
 
-  // Check basic fields
   formFields.forEach(id => {
     if (document.getElementById(id).value.trim() !== '') {
       completedFields++;
     }
   });
 
-  // Check experience fields
-  const experienceFields = document.querySelectorAll('#experienceFields textarea');
-  if (experienceFields.length > 0 && Array.from(experienceFields).some(f => f.value.trim() !== '')) {
-    completedFields++;
-  }
-
-  // Check education fields
-  const educationFields = document.querySelectorAll('#educationFields textarea');
-  if (educationFields.length > 0 && Array.from(educationFields).some(f => f.value.trim() !== '')) {
-    completedFields++;
-  }
-
-  // Check project fields
-  const projectFields = document.querySelectorAll('#projectFields textarea');
-  if (projectFields.length > 0 && Array.from(projectFields).some(f => f.value.trim() !== '')) {
-    completedFields++;
-  }
-
-  // Check certification fields
-  const certificationFields = document.querySelectorAll('#certificationFields textarea');
-  if (certificationFields.length > 0 && Array.from(certificationFields).some(f => f.value.trim() !== '')) {
-    completedFields++;
-  }
-
-  // Check language fields
-  const languageFields = document.querySelectorAll('#languageFields textarea');
-  if (languageFields.length > 0 && Array.from(languageFields).some(f => f.value.trim() !== '')) {
-    completedFields++;
-  }
+  ['experienceFields', 'educationFields', 'projectFields', 'certificationFields', 'languageFields'].forEach(fieldType => {
+    const fields = document.querySelectorAll(`#${fieldType} textarea`);
+    if (fields.length > 0 && Array.from(fields).some(f => f.value.trim() !== '')) {
+      completedFields++;
+    }
+  });
 
   const progress = Math.min(Math.round((completedFields / totalFields) * 100), 100);
   document.getElementById('progressBar').style.width = `${progress}%`;
   document.getElementById('progressText').textContent = `${progress}% complete`;
 }
 
+function updateSocialLinksPreview() {
+  const socialLinksContainer = document.getElementById('socialLinksPreview');
+  socialLinksContainer.innerHTML = '';
+
+  const links = [
+    { id: 'linkedinInput', icon: 'fab fa-linkedin', label: 'LinkedIn' },
+    { id: 'githubInput', icon: 'fab fa-github', label: 'GitHub' },
+    { id: 'websiteInput', icon: 'fas fa-globe', label: 'Website' }
+  ];
+
+  links.forEach(link => {
+    const url = document.getElementById(link.id).value.trim();
+    if (url) {
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.className = 'social-link';
+      
+      const icon = document.createElement('i');
+      icon.className = link.icon;
+      
+      const text = document.createElement('span');
+      text.textContent = link.label;
+      
+      anchor.appendChild(icon);
+      anchor.appendChild(text);
+      socialLinksContainer.appendChild(anchor);
+    }
+  });
+
+  if (socialLinksContainer.children.length === 0) {
+    socialLinksContainer.style.display = 'none';
+  } else {
+    socialLinksContainer.style.display = 'flex';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Load basic form fields
+  initTemplate();
   loadFormFields();
   
-  // Load all dynamic fields
-  loadDynamicFields('experienceFields', 'experiencePreview');
-  loadDynamicFields('educationFields', 'educationPreview');
-  loadDynamicFields('projectFields', 'projectPreview');
-  loadDynamicFields('certificationFields', 'certificationPreview');
-  loadDynamicFields('languageFields', 'languagePreview');
+  ['experience', 'education', 'project', 'certification', 'language'].forEach(section => {
+    const containerId = `${section}Fields`;
+    const previewId = `${section}Preview`;
+    
+    loadDynamicFields(containerId, previewId);
+    if (document.querySelectorAll(`#${containerId} textarea`).length === 0) {
+      window[`add${section.charAt(0).toUpperCase() + section.slice(1)}`]();
+    }
+  });
   
-  // Initialize skills preview
   updateSkillsPreview();
-  
-  // Add first empty fields if none exist
-  if (document.querySelectorAll('#experienceFields textarea').length === 0) {
-    addExperience();
-  }
-  if (document.querySelectorAll('#educationFields textarea').length === 0) {
-    addEducation();
-  }
-  if (document.querySelectorAll('#projectFields textarea').length === 0) {
-    addProject();
-  }
-  if (document.querySelectorAll('#certificationFields textarea').length === 0) {
-    addCertification();
-  }
-  if (document.querySelectorAll('#languageFields textarea').length === 0) {
-    addLanguage();
-  }
-  
-  // Initialize progress
+  updateSocialLinksPreview();
   updateProgress();
 });
 
-// [Previous loadFormFields, updatePreview, and skills handling code remains the same]
-
-// Add new dynamic field functions
-function addProject() {
-  addDynamicField('projectFields', 'Project name, Technologies, Description (e.g., "E-commerce Website, React/Node.js, Built a full-stack...")', 'projectPreview');
-}
-
-function addCertification() {
-  addDynamicField('certificationFields', 'Certification name, Issuer, Year (e.g., "AWS Certified Developer, Amazon, 2022")', 'certificationPreview');
-}
-
-function addLanguage() {
-  addDynamicField('languageFields', 'Language, Proficiency (e.g., "Spanish, Fluent")', 'languagePreview');
-}
-
-// Load and save basic form fields
 function loadFormFields() {
-  formFields.forEach(id => {
+  [...formFields, ...socialFields].forEach(id => {
     const input = document.getElementById(id);
     const savedValue = localStorage.getItem(id);
     
     if (savedValue) {
       input.value = savedValue;
-      // Trigger preview update for mapped fields
       if (formElements[id]) {
-        updatePreview(id, savedValue);
+        if (socialFields.includes(id)) {
+          updateSocialLinksPreview();
+        } else {
+          updatePreview(id, savedValue);
+        }
       }
     }
 
     input.addEventListener("input", () => {
       localStorage.setItem(id, input.value);
       if (formElements[id]) {
-        updatePreview(id, input.value);
+        if (socialFields.includes(id)) {
+          updateSocialLinksPreview();
+        } else {
+          updatePreview(id, input.value);
+        }
       }
       updateProgress();
+      removeFieldError(id); // Clear error state on input
     });
   });
 }
@@ -176,10 +218,10 @@ function updatePreview(inputId, value) {
   }
 }
 
-// Skills handling
 document.getElementById('skillsInput').addEventListener('input', () => {
   updateSkillsPreview();
   updateProgress();
+  removeFieldError('skillsInput');
 });
 
 function updateSkillsPreview() {
@@ -194,17 +236,27 @@ function updateSkillsPreview() {
     skillsList.appendChild(li);
   });
   
-  // Save to localStorage
   localStorage.setItem('skillsInput', skillsValue);
 }
 
-// Dynamic fields handling (Experience and Education)
 function addExperience() {
   addDynamicField('experienceFields', 'Job title, Company, Duration (e.g., "Software Engineer, Google, 2020-2022")', 'experiencePreview');
 }
 
 function addEducation() {
   addDynamicField('educationFields', 'Degree, University, Year (e.g., "BSc Computer Science, MIT, 2020")', 'educationPreview');
+}
+
+function addProject() {
+  addDynamicField('projectFields', 'Project name, Technologies, Description (e.g., "E-commerce Website, React/Node.js, Built a full-stack...")', 'projectPreview');
+}
+
+function addCertification() {
+  addDynamicField('certificationFields', 'Certification name, Issuer, Year (e.g., "AWS Certified Developer, Amazon, 2022")', 'certificationPreview');
+}
+
+function addLanguage() {
+  addDynamicField('languageFields', 'Language, Proficiency (e.g., "Spanish, Fluent")', 'languagePreview');
 }
 
 function addDynamicField(containerId, placeholder, previewId) {
@@ -229,6 +281,9 @@ function addDynamicField(containerId, placeholder, previewId) {
     updateDynamicPreview(containerId, previewId);
     saveDynamicFields(containerId);
     updateProgress();
+    textarea.classList.remove('error');
+    const errorMsgEl = textarea.parentNode.querySelector('.error-message');
+    if (errorMsgEl) errorMsgEl.textContent = '';
   });
   
   fieldGroup.appendChild(textarea);
@@ -238,8 +293,6 @@ function addDynamicField(containerId, placeholder, previewId) {
   updateDynamicPreview(containerId, previewId);
   saveDynamicFields(containerId);
   updateProgress();
-  
-  // Focus the new field
   textarea.focus();
 }
 
@@ -264,8 +317,16 @@ function updateDynamicPreview(containerId, previewId) {
   preview.innerHTML = '';
   
   if (Array.from(fields).every(field => field.value.trim() === '')) {
+    const defaultText = {
+      'experienceFields': 'Your experience entries will appear here',
+      'educationFields': 'Your education entries will appear here',
+      'projectFields': 'Your projects will appear here',
+      'certificationFields': 'Your certifications will appear here',
+      'languageFields': 'Your languages will appear here'
+    }[containerId];
+    
     const p = document.createElement('p');
-    p.textContent = containerId.includes('experience') ? 'Your experience entries will appear here' : 'Your education entries will appear here';
+    p.textContent = defaultText;
     p.style.color = '#999';
     preview.appendChild(p);
     return;
@@ -297,9 +358,13 @@ function loadDynamicFields(containerId, previewId) {
       textarea.rows = 2;
       textarea.value = value;
       textarea.dataset.fieldId = fieldId;
-      textarea.placeholder = containerId.includes('experience') 
-        ? 'Job title, Company, Duration' 
-        : 'Degree, University, Year';
+      textarea.placeholder = {
+        'experienceFields': 'Job title, Company, Duration',
+        'educationFields': 'Degree, University, Year',
+        'projectFields': 'Project name, Technologies, Description',
+        'certificationFields': 'Certification name, Issuer, Year',
+        'languageFields': 'Language, Proficiency'
+      }[containerId];
       
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
@@ -311,6 +376,9 @@ function loadDynamicFields(containerId, previewId) {
         updateDynamicPreview(containerId, previewId);
         saveDynamicFields(containerId);
         updateProgress();
+        textarea.classList.remove('error');
+        const errorMsgEl = textarea.parentNode.querySelector('.error-message');
+        if (errorMsgEl) errorMsgEl.textContent = '';
       });
       
       fieldGroup.appendChild(textarea);
@@ -329,92 +397,203 @@ function saveDynamicFields(containerId) {
   localStorage.setItem(containerId, JSON.stringify(data));
 }
 
-// Print/Download functionality
 function printResume() {
-  // Validate required fields
-  if (!validateForm()) {
-    return;
-  }
+  if (!validateForm()) return;
 
-  const originalContent = document.body.innerHTML;
+  const currentTemplate = document.documentElement.getAttribute('data-template');
+  const currentColor = colorPicker.value;
+  const currentFont = fontSelect.value;
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const isDarkMode = currentTheme === 'dark';
+
+  const previewClone = document.getElementById('resume-preview').cloneNode(true);
+  
   const printStyles = `
     <style>
-      body { 
-        font-family: Arial, sans-serif; 
-        line-height: 1.6; 
-        padding: 40px; 
+      body {
+        font-family: ${currentFont};
+        --primary-color: ${currentColor};
+        line-height: 1.6;
+        padding: 20px;
         max-width: 800px;
         margin: 0 auto;
-        color: #333;
+        color: ${isDarkMode ? '#f8f9fa' : '#212529'};
+        background: ${isDarkMode ? '#212529' : '#ffffff'};
       }
-      h1 { 
-        color: #007BFF; 
-        border-bottom: 2px solid #007BFF; 
+      
+      .preview-section {
+        background: ${isDarkMode ? '#2c3034' : '#ffffff'};
+        ${currentTemplate === 'modern' ? `border-left: 4px solid ${currentColor}; padding-left: 20px;` : ''}
+        ${currentTemplate === 'minimalist' ? 'background: transparent; box-shadow: none; padding: 0;' : ''}
+      }
+      
+      h1 {
+        color: ${currentColor};
+        ${currentTemplate === 'classic' ? `border-bottom: 2px solid ${currentColor};` : 'border-bottom: none;'}
         padding-bottom: 10px;
         margin-bottom: 10px;
+        ${currentTemplate === 'minimalist' ? 'font-size: 24px; font-weight: 600; letter-spacing: -0.5px;' : ''}
       }
-      h3 { 
-        color: #444; 
+      
+      h3 {
+        color: ${currentTemplate === 'modern' ? (isDarkMode ? '#f8f9fa' : '#444') : currentColor};
         margin-top: 25px;
         margin-bottom: 10px;
-        border-bottom: 1px solid #eee;
+        ${currentTemplate === 'classic' ? 'border-bottom: 1px solid #eee;' : 'border-bottom: none;'}
         padding-bottom: 5px;
+        ${currentTemplate === 'minimalist' ? 'font-size: 16px; text-transform: uppercase; letter-spacing: 1px;' : ''}
       }
-      ul { 
-        padding-left: 20px; 
-      }
-      p {
+      
+      p, li {
+        color: ${isDarkMode ? '#f8f9fa' : '#212529'};
         margin: 5px 0;
       }
+      
+      ul {
+        padding-left: 20px;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+        margin: 10px 0 20px;
+      }
+
+      .social-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: ${currentColor};
+        text-decoration: none;
+      }
+
+      .social-link i {
+        color: ${currentColor};
+      }
+      
       @media print {
-        body { 
+        body {
           padding: 0;
           font-size: 14px;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
-        button { 
-          display: none; 
+        
+        @page {
+          size: A4;
+          margin: 1cm;
         }
-      }
-      @page {
-        size: A4;
-        margin: 1cm;
       }
     </style>
   `;
+
+  updateSocialLinksForPrint(previewClone, currentColor);
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>My Resume</title>
+        ${printStyles}
+      </head>
+      <body>
+        ${previewClone.outerHTML}
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+              window.close();
+            }, 200);
+          };
+        </script>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+function updateSocialLinksForPrint(previewClone, color) {
+  const socialLinksContainer = previewClone.querySelector('.social-links');
+  if (!socialLinksContainer) return;
+
+  socialLinksContainer.innerHTML = '';
   
-  const resumeContent = document.getElementById('resume-preview').outerHTML;
-  
-  document.body.innerHTML = printStyles + resumeContent;
-  window.print();
-  document.body.innerHTML = originalContent;
-  
-  // Restore scroll position
-  window.scrollTo(0, 0);
+  const links = [
+    { id: 'linkedinInput', icon: 'fab fa-linkedin', label: 'LinkedIn' },
+    { id: 'githubInput', icon: 'fab fa-github', label: 'GitHub' },
+    { id: 'websiteInput', icon: 'fas fa-globe', label: 'Website' }
+  ];
+
+  links.forEach(link => {
+    const url = document.getElementById(link.id).value.trim();
+    if (url) {
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.className = 'social-link';
+      anchor.style.color = color;
+      
+      const icon = document.createElement('i');
+      icon.className = link.icon;
+      icon.style.color = color;
+      
+      const text = document.createElement('span');
+      text.textContent = link.label;
+      
+      anchor.appendChild(icon);
+      anchor.appendChild(text);
+      socialLinksContainer.appendChild(anchor);
+    }
+  });
+
+  if (socialLinksContainer.children.length === 0) {
+    socialLinksContainer.style.display = 'none';
+  } else {
+    socialLinksContainer.style.display = 'flex';
+  }
+}
+
+// --- Form Validation Feedback ---
+function showFieldError(inputId, message) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.classList.add('error');
+  const errorSpan = document.getElementById(inputId + '-error');
+  if (errorSpan) errorSpan.textContent = message;
+}
+
+function removeFieldError(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.classList.remove('error');
+  const errorSpan = document.getElementById(inputId + '-error');
+  if (errorSpan) errorSpan.textContent = '';
 }
 
 function validateForm() {
+  // Clear all previous errors
+  formFields.forEach(id => removeFieldError(id));
+
+  let valid = true;
   const name = document.getElementById('nameInput').value.trim();
   const email = document.getElementById('emailInput').value.trim();
-  
+
   if (!name) {
-    alert('Please enter your full name');
-    document.getElementById('nameInput').focus();
-    return false;
+    showFieldError('nameInput', 'Please enter your full name.');
+    valid = false;
   }
-  
+
   if (!email) {
-    alert('Please enter your email address');
-    document.getElementById('emailInput').focus();
-    return false;
+    showFieldError('emailInput', 'Please enter your email address.');
+    valid = false;
+  } else if (!isValidEmail(email)) {
+    showFieldError('emailInput', 'Please enter a valid email address.');
+    valid = false;
   }
-  
-  if (!isValidEmail(email)) {
-    alert('Please enter a valid email address');
-    document.getElementById('emailInput').focus();
-    return false;
-  }
-  
-  return true;
+
+  return valid;
 }
 
 function isValidEmail(email) {
@@ -422,7 +601,6 @@ function isValidEmail(email) {
   return re.test(email);
 }
 
-// Clear all data
 function clearResume() {
   if (confirm("Are you sure you want to clear all data? This cannot be undone.")) {
     localStorage.clear();
