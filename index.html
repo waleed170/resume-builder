@@ -5,11 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Professional Resume Builder</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Lora:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+  <!-- Particle Background -->
+  <div id="particle-bg"></div>
+
   <div class="theme-toggle-container">
     <button id="themeToggle" aria-label="Toggle dark mode">🌓</button>
+    <div class="template-controls">
+      <select id="templateSelect">
+        <option value="classic">Classic</option>
+        <option value="modern">Modern</option>
+        <option value="minimalist">Minimalist</option>
+      </select>
+      <input type="color" id="colorPicker" value="#007BFF">
+      <select id="fontSelect">
+        <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Default</option>
+        <option value="'Roboto', sans-serif">Roboto</option>
+        <option value="'Lora', serif">Lora</option>
+        <option value="'Montserrat', sans-serif">Montserrat</option>
+      </select>
+    </div>
   </div>
+
   <div class="container">
     <div class="form-section">
       <h2>Build Your Resume</h2>
@@ -17,69 +37,82 @@
         <div class="progress-bar" id="progressBar"></div>
         <span class="progress-text" id="progressText">0% complete</span>
       </div>
-      <form id="resume-form">
-        <label data-tooltip="Your full name as you want it to appear on your resume">
+      <form id="resume-form" novalidate>
+        <label data-tooltip="Your full name as you want it to appear on your resume" for="nameInput">
           Full Name:
           <input type="text" id="nameInput" placeholder="John Doe" required />
+          <span class="error-message" id="nameInput-error"></span>
         </label>
 
-        <label data-tooltip="A professional email address employers can contact you at">
+        <label data-tooltip="A professional email address employers can contact you at" for="emailInput">
           Email:
           <input type="email" id="emailInput" placeholder="john@example.com" required />
+          <span class="error-message" id="emailInput-error"></span>
         </label>
 
-        <label data-tooltip="Phone number in international format (optional)">
+        <label data-tooltip="Phone number in international format (optional)" for="phoneInput">
           Phone:
           <input type="tel" id="phoneInput" placeholder="+1234567890" />
+          <span class="error-message" id="phoneInput-error"></span>
         </label>
 
-        <label data-tooltip="A brief summary of your professional background and skills">
+        <label data-tooltip="Your LinkedIn profile URL (optional)" for="linkedinInput">
+          LinkedIn:
+          <input type="url" id="linkedinInput" placeholder="https://linkedin.com/in/yourprofile" />
+          <span class="error-message" id="linkedinInput-error"></span>
+        </label>
+
+        <label data-tooltip="Your GitHub profile URL (optional)" for="githubInput">
+          GitHub:
+          <input type="url" id="githubInput" placeholder="https://github.com/yourusername" />
+          <span class="error-message" id="githubInput-error"></span>
+        </label>
+
+        <label data-tooltip="Your personal website or portfolio URL (optional)" for="websiteInput">
+          Website:
+          <input type="url" id="websiteInput" placeholder="https://yourwebsite.com" />
+          <span class="error-message" id="websiteInput-error"></span>
+        </label>
+
+        <label data-tooltip="A brief summary of your professional background and skills" for="summaryInput">
           Professional Summary:
           <textarea id="summaryInput" rows="4" placeholder="A passionate professional with..."></textarea>
+          <span class="error-message" id="summaryInput-error"></span>
         </label>
 
-        <label data-tooltip="Separate skills with commas (e.g., HTML, CSS, JavaScript)">
+        <label data-tooltip="Separate skills with commas (e.g., HTML, CSS, JavaScript)" for="skillsInput">
           Skills (comma separated):
           <input type="text" id="skillsInput" placeholder="HTML, CSS, JavaScript" />
+          <span class="error-message" id="skillsInput-error"></span>
         </label>
 
         <label data-tooltip="Add your work experience (most recent first)">
           Experience:
-          <div id="experienceFields">
-            <!-- Dynamic fields will be added here -->
-          </div>
+          <div id="experienceFields"></div>
           <button type="button" onclick="addExperience()" class="add-btn">+ Add Experience</button>
         </label>
 
         <label data-tooltip="Add your educational background">
           Education:
-          <div id="educationFields">
-            <!-- Dynamic fields will be added here -->
-          </div>
+          <div id="educationFields"></div>
           <button type="button" onclick="addEducation()" class="add-btn">+ Add Education</button>
         </label>
 
         <label data-tooltip="Add your significant projects with technologies used">
           Projects:
-          <div id="projectFields">
-            <!-- Dynamic fields will be added here -->
-          </div>
+          <div id="projectFields"></div>
           <button type="button" onclick="addProject()" class="add-btn">+ Add Project</button>
         </label>
 
         <label data-tooltip="Add your professional certifications">
           Certifications:
-          <div id="certificationFields">
-            <!-- Dynamic fields will be added here -->
-          </div>
+          <div id="certificationFields"></div>
           <button type="button" onclick="addCertification()" class="add-btn">+ Add Certification</button>
         </label>
 
         <label data-tooltip="Add languages you speak with proficiency level">
           Languages:
-          <div id="languageFields">
-            <!-- Dynamic fields will be added here -->
-          </div>
+          <div id="languageFields"></div>
           <button type="button" onclick="addLanguage()" class="add-btn">+ Add Language</button>
         </label>
 
@@ -94,6 +127,8 @@
       <h1 id="namePreview">Your Name</h1>
       <p><strong>Email:</strong> <span id="emailPreview">your@email.com</span></p>
       <p><strong>Phone:</strong> <span id="phonePreview">1234567890</span></p>
+      
+      <div class="social-links" id="socialLinksPreview"></div>
 
       <h3>Professional Summary</h3>
       <p id="summaryPreview">Summary goes here...</p>
@@ -132,5 +167,6 @@
   </div>
 
   <script src="script.js"></script>
+  <script src="particles.js"></script>
 </body>
 </html>
